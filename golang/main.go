@@ -9,16 +9,16 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
-	"github.com/rebirth-in-ruins/torpedodge-clients/inputs"
+	"github.com/rebirth-in-ruins/torpedodge/server/game"
 )
 
 const (
-	gameserverURL = "ws://localhost:8080/play"
+	gameserverURL = "wss://gameserver.resamvi.io/play"
 	playerName = "GolangBot"
 )
 
 var (
-	directions = []string{"LEFT", "BOMB", "LEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP"}
+	directions = []string{"LEFT", "BOMBLEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP"}
 )
 
 func main() {
@@ -36,7 +36,7 @@ func run() error {
 	defer conn.CloseNow()
 
 	// Send initial JOIN message with your name
-	err = wsjson.Read(context.Background(), conn, "JOIN "+playerName+".go")
+	err = wsjson.Write(context.Background(), conn, "JOIN "+playerName+".go")
 	if err != nil {
 		return fmt.Errorf("could not join server: %w", err)
 	}
@@ -45,8 +45,8 @@ func run() error {
 
 	for {
 		// RECEIVE NEXT STATE
-		var state inputs.GameState
-		err := wsjson.Read(context.Background(), conn, state)
+		var state game.GameStateResponse
+		err := wsjson.Read(context.Background(), conn, &state)
 		if err != nil {
 			return fmt.Errorf("could not read from conn: %w", err)
 		}

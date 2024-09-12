@@ -1,5 +1,5 @@
 # Python Client
 Run with
 ```
-poetry run python main.py
+poetry install && poetry run python main.py
 ```

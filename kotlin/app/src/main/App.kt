@@ -10,7 +10,7 @@ import kotlin.system.exitProcess;
 
  class App {
      private val client = OkHttpClient()
-     private val gameserverUrl = "ws://localhost:8080/play"
+     private val gameserverUrl = "wss://gameserver.resamvi.io/play"
      private val playerName = "KotlinBot"
 
      fun start() {
@@ -21,14 +21,14 @@ import kotlin.system.exitProcess;
 
      private class EchoWebSocketListener(val playerName: String) : WebSocketListener() {
          var i = 0
-         var directions = arrayOf("LEFT", "BOMB", "LEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP")
+         var directions = arrayOf("LEFT", "BOMBLEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP")
 
          override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
              webSocket.send("JOIN " + playerName + ".kt")
          }
 
          override fun onMessage(webSocket: WebSocket, text: String) {
-             // Print received game state
+             // Here is the current game state
              // println("$text")
 
              // Decide on action

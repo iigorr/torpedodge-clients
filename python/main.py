@@ -1,15 +1,15 @@
 import websocket
 
-gameserver_url = "ws://localhost:8080/play"
+gameserver_url = "wss://gameserver.resamvi.io/play"
 player_name = "PythonBot"
 
-actions = ["LEFT", "BOMB", "LEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP"]
+actions = ["LEFT", "BOMBLEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP"]
 i = 0
 
 def on_message(ws, message):
     global i
 
-    # Print Game State
+    # Here is the current game state
     # print(message)
 
     # Decide on action
@@ -29,7 +29,7 @@ def on_close(ws, close_status_code, close_msg):
 def on_open(ws):
     ws.send("JOIN "+player_name+".py")
 
-ws = websocket.WebSocketApp("ws://localhost:8080/play", on_open=on_open,
+ws = websocket.WebSocketApp(gameserver_url, on_open=on_open,
                             on_message=on_message,
                             on_error=on_error,
                             on_close=on_close)
