@@ -14,21 +14,23 @@ import (
 
 const (
 	gameserverURL = "wss://gameserver.resamvi.io/play"
-	playerName = "GolangBot"
-)
-
-var (
-	directions = []string{"LEFT", "BOMBLEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP"}
+	playerName    = "iigorr"
 )
 
 func main() {
-	if err := run(); err != nil {
+	//s := ManualStrategy{}
+	//s.listen()
+
+	s := NewAvoidBombStrategy()
+	s.ManualStrategy.listen()
+
+	if err := run(&s); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 }
 
-func run() error {
+func run(strat Strategy) error {
 	conn, _, err := websocket.Dial(context.Background(), gameserverURL, nil)
 	if err != nil {
 		return fmt.Errorf("could not dial server: %w (url: %v)", err, gameserverURL)
@@ -51,8 +53,7 @@ func run() error {
 			return fmt.Errorf("could not read from conn: %w", err)
 		}
 
-		// Sail in a circle
-		action := directions[i % len(directions)]
+		action := strat.nextMove(state)
 		slog.Info(action)
 
 		// SEND ACTION
