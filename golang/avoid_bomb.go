@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand/v2"
+	"sort"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/rebirth-in-ruins/torpedodge/server/game"
@@ -12,6 +12,12 @@ type Point struct {
 	X, Y   int
 	rating float64
 }
+
+type ByRating []Point
+
+func (a ByRating) Len() int           { return len(a) }
+func (a ByRating) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByRating) Less(i, j int) bool { return a[i].rating < a[j].rating }
 
 func NewPoint(x, y int) Point {
 	return Point{X: x, Y: y, rating: 0}
@@ -177,13 +183,14 @@ func (s *AvoidBombStrategy) nextMove(state game.GameStateResponse) string {
 	}
 
 	moves := s.possibleMoves()
-	randomPick := moves[rand.IntN(len(moves))]
+	for _, move := range moves {
+		rating := s.rateMove(move, state)
+		move.rating = rating
+	}
 
 	spew.Printf("Pos (%d, %d)\n", s.me.X, s.me.Y)
-	spew.Printf("Next Move: (%d, %d)\n", randomPick.X, randomPick.Y)
+	sort.Sort(ByRating(moves))
+	spew.Dump(moves)
 
-	moveRating := s.rateMove(randomPick, state)
-	spew.Printf("Rating of Move %f\n", moveRating)
-
-	return s.point2Dir(randomPick)
+	return s.point2Dir(moves[0])
 }
