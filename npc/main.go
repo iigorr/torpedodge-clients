@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
+	"time"
 
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
@@ -61,9 +62,11 @@ func run() error {
 	i := 0
 
 	for {
+		ctx, cancel := context.WithTimeout(context.Background(), 12 * time.Second)
+
 		// RECEIVE NEXT STATE
 		var state game.GameStateResponse
-		err = wsjson.Read(context.Background(), conn, &state)
+		err = wsjson.Read(ctx, conn, &state)
 		if err != nil {
 			return fmt.Errorf("could not write: %w", err)
 		}
@@ -74,12 +77,13 @@ func run() error {
 		slog.Info(action)
 
 		// SEND ACTION
-		err = wsjson.Write(context.Background(), conn, action)
+		err = wsjson.Write(ctx, conn, action)
 		if err != nil {
 			return fmt.Errorf("could not write: %w", err)
 		}
 
 		i++
+		cancel()
 	}
 }
 
